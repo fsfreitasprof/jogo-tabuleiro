@@ -1,21 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sorteio da Carta</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cálculo em Movimento</title>
   <style>
-    :root {
-      --bg: #0d1117;
-      --card: #161b22;
-      --accent: #00bcd4;
-      --text: #f0f6fc;
-    }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: "Poppins", Arial, sans-serif;
+      font-family: "Poppins", sans-serif;
+      background: #f1f5f9;
       margin: 0;
       padding: 0;
       display: flex;
@@ -25,102 +17,86 @@
       height: 100vh;
     }
 
-    .container {
-      background: var(--card);
-      padding: 30px 20px;
+    .card {
+      background: #ffffff;
+      padding: 30px;
       border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
       width: 90%;
       max-width: 400px;
-      text-align: center;
+      transition: all 0.3s;
     }
 
     h1 {
-      font-size: 1.8rem;
+      color: #2563eb;
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+
+    #casa {
+      color: #475569;
       margin-bottom: 20px;
-      color: var(--accent);
     }
 
     button {
-      background: var(--accent);
+      background: #2563eb;
+      color: white;
       border: none;
-      color: #fff;
-      padding: 15px 30px;
-      font-size: 1.1rem;
       border-radius: 10px;
+      padding: 15px;
+      font-size: 1.1rem;
       cursor: pointer;
-      margin-top: 15px;
       width: 100%;
-      transition: 0.2s;
+      transition: background 0.2s;
     }
 
     button:hover {
-      background: #00acc1;
+      background: #1d4ed8;
     }
 
     #resultado {
-      margin-top: 20px;
+      margin-top: 25px;
       font-size: 1.3rem;
+      color: #111827;
       min-height: 2em;
     }
 
     footer {
-      margin-top: 20px;
+      margin-top: 15px;
       font-size: 0.8rem;
-      opacity: 0.6;
+      color: #64748b;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="titulo">Carta Misteriosa</h1>
-    <p id="descricao">Clique para revelar seu destino...</p>
-    <button onclick="sortear()">Sortear</button>
-    <p id="resultado"></p>
+  <div class="card">
+    <h1>🧮 Cálculo em Movimento</h1>
+    <p id="casa"></p>
+    <button id="btn" onclick="sortear()">Revelar desafio</button>
+    <div id="resultado"></div>
   </div>
-
-  <footer>⚔️ Jogo de Tabuleiro Interativo</footer>
+  <footer>📏 Desenvolvido para jogos de tabuleiro educativos</footer>
 
   <script>
-    // Lê o número da carta da URL (?carta=1)
     const params = new URLSearchParams(window.location.search);
-    const carta = parseInt(params.get("carta")) || 1;
+    const casa = parseInt(params.get("casa")) || 1;
 
-    // Listas específicas para cada carta
-    const listas = {
-      1: ["Ganha 1 poção de cura", "Perde 1 turno", "Encontra uma espada enferrujada", "Nada acontece"],
-      2: ["Ganha 2 moedas de ouro", "É atacado por goblins", "Recebe ajuda de um mago", "Perde metade do ouro"],
-      3: ["Avança 2 casas", "Volta 1 casa", "Ganha um escudo mágico", "Cai em uma armadilha"],
-      4: ["Descobre um mapa do tesouro", "É amaldiçoado", "Ganha 3 pontos de experiência", "Perde um item aleatório"],
-      5: ["Nada acontece", "Uma fada cura seus ferimentos", "Você dorme e recupera energia", "Perde 1 ponto de vida"],
-      6: ["Rouba um item de outro jogador", "Cai em um buraco", "Recebe uma benção dos deuses", "Perde 2 moedas"],
-      7: ["Ganha um anel mágico", "Um ladrão rouba seu ouro", "Avança até o castelo", "Volta ao início"],
-      8: ["Você encontra um dragão!", "O dragão te ignora", "Recebe um tesouro lendário", "Foge ileso"],
-      9: ["Ganha 5 moedas", "Perde 3 moedas", "Nada acontece", "É teleportado para outro lugar"],
-      10:["Ganha o dobro do ouro atual", "Perde tudo", "Um aliado aparece", "Um inimigo poderoso surge"]
+    const desafios = {
+      1: ["12 + 8 = ?", "5 × 6 = ?", "30 ÷ 5 = ?"],
+      2: ["(3 + 4) × 2 = ?", "15 − 9 = ?", "9 × 7 = ?"],
+      3: ["100 ÷ 4 = ?", "8² = ?", "25% de 200 = ?"],
+      4: ["Raiz de 81 = ?", "7 × 8 − 10 = ?", "(12 ÷ 3) + 5 = ?"],
+      5: ["3³ = ?", "20% de 90 = ?", "60 ÷ (5 + 1) = ?"]
     };
 
-    const titulos = {
-      1: "Poço Misterioso",
-      2: "Bolsos do Aventureiro",
-      3: "Caminho das Sombras",
-      4: "Ruínas Perdidas",
-      5: "Descanso do Herói",
-      6: "Caverna do Ladrão",
-      7: "Anel dos Deuses",
-      8: "Cova do Dragão",
-      9: "Portal da Sorte",
-      10:"Trono do Destino"
-    };
+    document.getElementById("casa").innerText = `📍 Casa ${casa}`;
 
-    // Atualiza título conforme carta
-    document.getElementById("titulo").innerText = titulos[carta] || "Carta Misteriosa";
-
-    // Função de sorteio
     function sortear() {
-      const lista = listas[carta] || ["Nada acontece..."];
-      const resultado = lista[Math.floor(Math.random() * lista.length)];
-      document.getElementById("resultado").innerText = resultado;
+      const lista = desafios[casa] || ["Nenhum desafio disponível para esta casa."];
+      const item = lista[Math.floor(Math.random() * lista.length)];
+      document.getElementById("resultado").innerText = item;
+      document.getElementById("btn").innerText = "Sortear novamente";
     }
   </script>
 </body>

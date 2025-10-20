@@ -5,20 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sorteio da Carta</title>
   <style>
-    body { font-family: Arial; text-align: center; margin-top: 100px; }
-    button { font-size: 18px; padding: 10px 20px; margin-top: 20px; }
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --accent: #00bcd4;
+      --text: #f0f6fc;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Poppins", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: var(--card);
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: var(--accent);
+    }
+
+    button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #00acc1;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 1.3rem;
+      min-height: 2em;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
   </style>
 </head>
 <body>
-  <h1>Sorteio da Carta</h1>
-  <p id="resultado"></p>
-  <button onclick="sortear()">Sortear</button>
+  <div class="container">
+    <h1 id="titulo">Carta Misteriosa</h1>
+    <p id="descricao">Clique para revelar seu destino...</p>
+    <button onclick="sortear()">Sortear</button>
+    <p id="resultado"></p>
+  </div>
+
+  <footer>⚔️ Jogo de Tabuleiro Interativo</footer>
 
   <script>
-    const lista = ["Espada Lendária", "Poção Misteriosa", "Trap Card", "Ouro", "Perde 1 turno"];
+    // Lê o número da carta da URL (?carta=1)
+    const params = new URLSearchParams(window.location.search);
+    const carta = parseInt(params.get("carta")) || 1;
+
+    // Listas específicas para cada carta
+    const listas = {
+      1: ["Ganha 1 poção de cura", "Perde 1 turno", "Encontra uma espada enferrujada", "Nada acontece"],
+      2: ["Ganha 2 moedas de ouro", "É atacado por goblins", "Recebe ajuda de um mago", "Perde metade do ouro"],
+      3: ["Avança 2 casas", "Volta 1 casa", "Ganha um escudo mágico", "Cai em uma armadilha"],
+      4: ["Descobre um mapa do tesouro", "É amaldiçoado", "Ganha 3 pontos de experiência", "Perde um item aleatório"],
+      5: ["Nada acontece", "Uma fada cura seus ferimentos", "Você dorme e recupera energia", "Perde 1 ponto de vida"],
+      6: ["Rouba um item de outro jogador", "Cai em um buraco", "Recebe uma benção dos deuses", "Perde 2 moedas"],
+      7: ["Ganha um anel mágico", "Um ladrão rouba seu ouro", "Avança até o castelo", "Volta ao início"],
+      8: ["Você encontra um dragão!", "O dragão te ignora", "Recebe um tesouro lendário", "Foge ileso"],
+      9: ["Ganha 5 moedas", "Perde 3 moedas", "Nada acontece", "É teleportado para outro lugar"],
+      10:["Ganha o dobro do ouro atual", "Perde tudo", "Um aliado aparece", "Um inimigo poderoso surge"]
+    };
+
+    const titulos = {
+      1: "Poço Misterioso",
+      2: "Bolsos do Aventureiro",
+      3: "Caminho das Sombras",
+      4: "Ruínas Perdidas",
+      5: "Descanso do Herói",
+      6: "Caverna do Ladrão",
+      7: "Anel dos Deuses",
+      8: "Cova do Dragão",
+      9: "Portal da Sorte",
+      10:"Trono do Destino"
+    };
+
+    // Atualiza título conforme carta
+    document.getElementById("titulo").innerText = titulos[carta] || "Carta Misteriosa";
+
+    // Função de sorteio
     function sortear() {
-      const item = lista[Math.floor(Math.random() * lista.length)];
-      document.getElementById("resultado").innerText = "Você tirou: " + item;
+      const lista = listas[carta] || ["Nada acontece..."];
+      const resultado = lista[Math.floor(Math.random() * lista.length)];
+      document.getElementById("resultado").innerText = resultado;
     }
   </script>
 </body>

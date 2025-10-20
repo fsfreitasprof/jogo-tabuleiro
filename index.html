@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteio da Carta</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 100px; }
+    button { font-size: 18px; padding: 10px 20px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Sorteio da Carta</h1>
+  <p id="resultado"></p>
+  <button onclick="sortear()">Sortear</button>
+
+  <script>
+    const lista = ["Espada Lendária", "Poção Misteriosa", "Trap Card", "Ouro", "Perde 1 turno"];
+    function sortear() {
+      const item = lista[Math.floor(Math.random() * lista.length)];
+      document.getElementById("resultado").innerText = "Você tirou: " + item;
+    }
+  </script>
+</body>
+</html>

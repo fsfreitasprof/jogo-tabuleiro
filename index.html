@@ -1,103 +1,142 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cálculo em Movimento</title>
-  <style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorte ou Azar?</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --cor-bg: #f1f5f9;
+        --cor-card: #ffffff;
+    }
+
     body {
-      font-family: "Poppins", sans-serif;
-      background: #f1f5f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+        font-family: 'Press Start 2P', cursive;
+        background-color: var(--cor-bg);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        transition: background-color 0.5s;
     }
 
     .card {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-      transition: all 0.3s;
+        background-color: var(--cor-card);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
     }
 
     h1 {
-      color: #2563eb;
-      font-size: 1.6rem;
-      margin-bottom: 10px;
-    }
-
-    #casa {
-      color: #475569;
-      margin-bottom: 20px;
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+        color: #111827;
     }
 
     button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 15px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 15px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.2s;
     }
 
     button:hover {
-      background: #1d4ed8;
+        background: #1d4ed8;
     }
 
     #resultado {
-      margin-top: 25px;
-      font-size: 1.3rem;
-      color: #111827;
-      min-height: 2em;
+        margin-top: 25px;
+        font-size: 1rem;
+        min-height: 2em;
     }
 
     footer {
-      margin-top: 15px;
-      font-size: 0.8rem;
-      color: #64748b;
+        margin-top: 15px;
+        font-size: 0.6rem;
+        color: #64748b;
     }
-  </style>
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>🧮 Cálculo em Movimento</h1>
-    <p id="casa"></p>
-    <button id="btn" onclick="sortear()">Revelar desafio</button>
+<div class="card">
+    <h1>Sorte ou Azar?</h1>
+    <button id="btn" onclick="sortear()">Sortear</button>
     <div id="resultado"></div>
-  </div>
-  <footer>📏 Desenvolvido para jogos de tabuleiro educativos</footer>
+</div>
+<footer>Desenvolvido para jogos de tabuleiro educativos</footer>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const casa = parseInt(params.get("casa")) || 1;
+<script>
+    // Verifica se o usuário já sorteou
+    if(sessionStorage.getItem('jaSortearam')) {
+        document.getElementById('btn').disabled = true;
+        document.getElementById('btn').innerText = "Você já sorteou!";
+        document.getElementById('resultado').innerText = "Atualize a página para tentar novamente.";
+    }
 
-    const desafios = {
-      1: ["12 + 8 = ?", "5 × 6 = ?", "30 ÷ 5 = ?"],
-      2: ["(3 + 4) × 2 = ?", "15 − 9 = ?", "9 × 7 = ?"],
-      3: ["100 ÷ 4 = ?", "8² = ?", "25% de 200 = ?"],
-      4: ["Raiz de 81 = ?", "7 × 8 − 10 = ?", "(12 ÷ 3) + 5 = ?"],
-      5: ["3³ = ?", "20% de 90 = ?", "60 ÷ (5 + 1) = ?"]
-    };
+    const ruins = [
+        "Volte 1 casa.",
+        "Perca 5 pontos.",
+        "Fique uma rodada sem jogar.",
+        "Volte 2 casas.",
+        "Você não ganha pontos nesta rodada."
+    ];
 
-    document.getElementById("casa").innerText = `📍 Casa ${casa}`;
+    const boas = [
+        "Avance 1 casa.",
+        "Ganhe 5 pontos.",
+        "Jogue novamente imediatamente sem precisar responder uma pergunta novamente.",
+        "Avance 2 casas.",
+        "Escolha um jogador para pular a vez."
+    ];
+
+    const outras = [
+        "Faça um adversário voltar uma casa.",
+        "Transfira seus pontos ganhos ou perdidos nesta pergunta para um adversário (obrigatoriamente).",
+        "Escolha um jogador para responder uma pergunta do tipo médio (azul) e se ele errar, você avança uma casa.",
+        "Todos os jogadores voltam uma casa, exceto você.",
+        "Todos os jogadores, inclusive você, perdem 5 ponto.",
+        "Todos os jogadores, inclusive você, ganham 5 ponto."
+    ];
 
     function sortear() {
-      const lista = desafios[casa] || ["Nenhum desafio disponível para esta casa."];
-      const item = lista[Math.floor(Math.random() * lista.length)];
-      document.getElementById("resultado").innerText = item;
-      document.getElementById("btn").innerText = "Sortear novamente";
+        if(sessionStorage.getItem('jaSortearam')) return;
+
+        const todas = [
+            ...ruins.map(a=>({texto:a,categoria:'ruim'})),
+            ...boas.map(a=>({texto:a,categoria:'bom'})),
+            ...outras.map(a=>({texto:a,categoria:'outros'}))
+        ];
+
+        const item = todas[Math.floor(Math.random() * todas.length)];
+
+        document.getElementById('resultado').innerText = item.texto;
+
+        // Altera cor do fundo conforme categoria
+        if(item.categoria === 'bom') {
+            document.body.style.backgroundColor = "#16a34a"; // verde
+        } else if(item.categoria === 'ruim') {
+            document.body.style.backgroundColor = "#dc2626"; // vermelho
+        } else {
+            document.body.style.backgroundColor = "#facc15"; // amarelo
+        }
+
+        // Marca que já sorteou
+        sessionStorage.setItem('jaSortearam','true');
+        document.getElementById('btn').disabled = true;
+        document.getElementById('btn').innerText = "Você já sorteou!";
     }
-  </script>
+</script>
 </body>
 </html>

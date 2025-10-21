@@ -74,12 +74,6 @@ button:hover {
 </div>
 
 <script>
-if(sessionStorage.getItem('jaSortearam')) {
-    document.getElementById('btn').disabled = true;
-    document.getElementById('btn').innerText = "Você já sorteou!";
-    document.getElementById('resultado').innerText = "Atualize a página para tentar novamente.";
-}
-
 const ruins = [
     "Volte 1 casa.",
     "Perca 5 pontos.",
@@ -106,8 +100,6 @@ const outras = [
 ];
 
 function sortear() {
-    if(sessionStorage.getItem('jaSortearam')) return;
-
     const todas = [
         ...ruins.map(a=>({texto:a,categoria:'ruim'})),
         ...boas.map(a=>({texto:a,categoria:'bom'})),
@@ -140,10 +132,6 @@ function sortear() {
                 document.body.style.backgroundColor = "#facc15"; // amarelo
                 botao.style.backgroundColor = "#ca8a04";
             }
-
-            sessionStorage.setItem('jaSortearam','true');
-            botao.disabled = true;
-            botao.innerText = "Você já sorteou!";
         }
     }, intervalo);
 }

@@ -9,6 +9,7 @@
 :root {
     --cor-bg: #f1f5f9;
     --cor-card: #ffffff;
+    --cor-botao: #2563eb;
 }
 
 body {
@@ -41,7 +42,7 @@ h1 {
 }
 
 button {
-    background: #2563eb;
+    background: var(--cor-botao);
     color: white;
     border: none;
     border-radius: 10px;
@@ -49,24 +50,19 @@ button {
     font-size: 0.8rem;
     cursor: pointer;
     width: 100%;
-    transition: background 0.2s;
+    transition: all 0.3s;
 }
 
 button:hover {
-    background: #1d4ed8;
+    opacity: 0.9;
 }
 
 #resultado {
     margin-top: 25px;
     font-size: 1rem;
     min-height: 2em;
+    font-family: Arial, sans-serif; /* Fonte normal */
     transition: all 0.3s;
-}
-
-footer {
-    margin-top: 15px;
-    font-size: 0.6rem;
-    color: #64748b;
 }
 </style>
 </head>
@@ -76,7 +72,6 @@ footer {
     <button id="btn" onclick="sortear()">Sortear</button>
     <div id="resultado"></div>
 </div>
-<footer>Desenvolvido para jogos de tabuleiro educativos</footer>
 
 <script>
 if(sessionStorage.getItem('jaSortearam')) {
@@ -120,6 +115,7 @@ function sortear() {
     ];
 
     const resultadoEl = document.getElementById('resultado');
+    const botao = document.getElementById('btn');
     let contador = 0;
     const iteracoes = 20; // Quantas vezes vai mudar rapidamente
     const intervalo = 80; // ms entre cada troca
@@ -133,18 +129,21 @@ function sortear() {
             const final = todas[Math.floor(Math.random() * todas.length)];
             resultadoEl.innerText = final.texto;
 
-            // Altera cor do fundo conforme categoria
+            // Altera cor do fundo e botão conforme categoria
             if(final.categoria === 'bom') {
                 document.body.style.backgroundColor = "#16a34a"; // verde
+                botao.style.backgroundColor = "#15803d";
             } else if(final.categoria === 'ruim') {
                 document.body.style.backgroundColor = "#dc2626"; // vermelho
+                botao.style.backgroundColor = "#b91c1c";
             } else {
                 document.body.style.backgroundColor = "#facc15"; // amarelo
+                botao.style.backgroundColor = "#ca8a04";
             }
 
             sessionStorage.setItem('jaSortearam','true');
-            document.getElementById('btn').disabled = true;
-            document.getElementById('btn').innerText = "Você já sorteou!";
+            botao.disabled = true;
+            botao.innerText = "Você já sorteou!";
         }
     }, intervalo);
 }

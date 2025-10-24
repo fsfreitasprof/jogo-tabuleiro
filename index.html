@@ -75,48 +75,40 @@ button:hover {
 
 <script>
 async function carregarConfig() {
-    const resp = await fetch("config.json");
-    return await resp.json();
+    const res = await fetch("config.json?v=" + Date.now());
+    return await res.json();
 }
 
-async function carregarArquivos(cor, arquivos) {
-    let eventos = [];
-    for (const nome of arquivos) {
-        const resp = await fetch(`eventos/${cor}/${nome}`);
-        if (resp.ok) {
-            const texto = await resp.text();
-            const linhas = texto.split("\n").map(l => l.trim()).filter(l => l);
-            eventos.push(...linhas);
-        }
+async function carregarEventos(cor, arquivos) {
+    const eventos = [];
+    for (const arquivo of arquivos) {
+        const resp = await fetch(`eventos/${cor}/${arquivo}?v=${Date.now()}`);
+        const texto = await resp.text();
+        const linhas = texto.split("\n").map(l => l.trim()).filter(l => l);
+        eventos.push(...linhas);
     }
     return eventos;
 }
 
 async function sortear() {
-    const resultadoEl = document.getElementById('resultado');
-    const botao = document.getElementById('btn');
+    const resultadoEl = document.getElementById("resultado");
+    const botao = document.getElementById("btn");
 
     const config = await carregarConfig();
-    const { verde, vermelho, amarelo } = config.probabilidades;
+    const { probabilidades, listas } = config;
 
-    // Distribuição ponderada
-    const total = verde + vermelho + amarelo;
-    const random = Math.random() * total;
-    let corEscolhida = 'verde';
-    if (random < verde) corEscolhida = 'verde';
-    else if (random < verde + vermelho) corEscolhida = 'vermelho';
-    else corEscolhida = 'amarelo';
+    const total = probabilidades.verde + probabilidades.vermelho + probabilidades.amarelo;
+    const r = Math.random() * total;
+    let cor;
+    if (r < probabilidades.verde) cor = "verde";
+    else if (r < probabilidades.verde + probabilidades.vermelho) cor = "vermelho";
+    else cor = "amarelo";
 
-    // Carrega eventos das listas selecionadas
-    const listas = config.listas[corEscolhida];
-    const eventos = await carregarArquivos(corEscolhida, listas);
+    const arquivos = listas[cor];
+    const eventos = await carregarEventos(cor, arquivos);
+    const eventoSorteado = eventos[Math.floor(Math.random() * eventos.length)];
 
-    if (eventos.length === 0) {
-        resultadoEl.innerText = "Nenhum evento disponível.";
-        return;
-    }
-
-    // Animação de sorteio rápido
+    resultadoEl.innerText = "Sorteando...";
     let contador = 0;
     const iteracoes = 20;
     const intervalo = 80;
@@ -126,14 +118,12 @@ async function sortear() {
         contador++;
         if (contador >= iteracoes) {
             clearInterval(anim);
-            const final = eventos[Math.floor(Math.random() * eventos.length)];
-            resultadoEl.innerText = final;
+            resultadoEl.innerText = eventoSorteado;
 
-            // Ajusta cores visuais
-            if (corEscolhida === 'verde') {
+            if (cor === "verde") {
                 document.body.style.backgroundColor = "#16a34a";
                 botao.style.backgroundColor = "#15803d";
-            } else if (corEscolhida === 'vermelho') {
+            } else if (cor === "vermelho") {
                 document.body.style.backgroundColor = "#dc2626";
                 botao.style.backgroundColor = "#b91c1c";
             } else {

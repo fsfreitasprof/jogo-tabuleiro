@@ -8,11 +8,7 @@
     "verde": [
       "Texte 1"
     ],
-    "vermelho": [
-      "padrao"
-    ],
-    "amarelo": [
-      "padrao"
-    ]
+    "vermelho": [],
+    "amarelo": []
   }
 }

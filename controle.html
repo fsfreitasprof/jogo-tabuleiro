@@ -1,86 +1,115 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel de Controle</title>
-  <style>
-    body { background:#111; color:white; font-family:Arial; padding:20px; }
-    input, select { padding:5px; margin:5px; }
-    .cor { margin-bottom:20px; }
-    button { padding:10px 20px; font-size:16px; cursor:pointer; }
-    h2 { color:#0f0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Eventos</title>
+<style>
+body {
+    background-color: #111;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+h1, h2 {
+    color: #0f0;
+}
+.cor {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+button:hover {
+    opacity: 0.8;
+}
+</style>
 </head>
 <body>
-  <h1>Controle de Probabilidades e Listas</h1>
+<h1>Painel de Controle</h1>
+<h2>Probabilidades</h2>
+<div>Verde: <input type="number" id="probVerde" min="0" value="2"></div>
+<div>Vermelho: <input type="number" id="probVermelho" min="0" value="1"></div>
+<div>Amarelo: <input type="number" id="probAmarelo" min="0" value="1"></div>
 
-  <div class="probabilidades">
-    <h2>Probabilidades</h2>
-    <div>Verde: <input type="number" id="probVerde" min="0" value="2"></div>
-    <div>Vermelho: <input type="number" id="probVermelho" min="0" value="1"></div>
-    <div>Amarelo: <input type="number" id="probAmarelo" min="0" value="1"></div>
-  </div>
+<h2>Listas disponíveis</h2>
+<div id="listas"></div>
 
-  <hr>
-  <h2>Seleção de Listas</h2>
+<button onclick="salvar()">Salvar Configurações</button>
 
-  <div id="listas"></div>
+<script>
+async function carregarJSON(caminho) {
+    const resp = await fetch(caminho + "?v=" + Date.now());
+    return resp.json();
+}
 
-  <button onclick="salvar()">Salvar Configurações</button>
+async function carregar() {
+    const cfg = await carregarJSON("config.json");
+    document.getElementById("probVerde").value = cfg.verde;
+    document.getElementById("probVermelho").value = cfg.vermelho;
+    document.getElementById("probAmarelo").value = cfg.amarelo;
 
-  <script>
-    async function carregar() {
-      const cfg = await (await fetch("config.json?v=" + Date.now())).json();
-      document.getElementById("probVerde").value = cfg.verde;
-      document.getElementById("probVermelho").value = cfg.vermelho;
-      document.getElementById("probAmarelo").value = cfg.amarelo;
+    const listas = {
+        verde: await carregarJSON("eventos/verde.json"),
+        vermelho: await carregarJSON("eventos/vermelho.json"),
+        amarelo: await carregarJSON("eventos/amarelo.json")
+    };
 
-      const listas = await (await fetch("eventos/lista.json?v=" + Date.now())).json();
-      const selecoesSalvas = JSON.parse(localStorage.getItem("selecoes") || "{}");
-      const container = document.getElementById("listas");
+    const selecoesSalvas = JSON.parse(localStorage.getItem("selecoes")) || {};
+    const container = document.getElementById("listas");
 
-      for (const cor in listas) {
+    for (const cor in listas) {
         const div = document.createElement("div");
         div.classList.add("cor");
         div.innerHTML = `<strong>${cor.toUpperCase()}:</strong><br>`;
-        listas[cor].forEach(arq => {
-          const id = `${cor}-${arq}`;
-          const chk = document.createElement("input");
-          chk.type = "checkbox";
-          chk.id = id;
-          chk.value = arq;
-          if (selecoesSalvas[cor]?.includes(arq)) chk.checked = true;
-          const lbl = document.createElement("label");
-          lbl.setAttribute("for", id);
-          lbl.innerText = arq;
-          div.appendChild(chk);
-          div.appendChild(lbl);
-          div.appendChild(document.createElement("br"));
-        });
-        container.appendChild(div);
-      }
-    }
 
-    function salvar() {
-      const cfg = {
+        for (const nome in listas[cor]) {
+            const id = `${cor}-${nome}`;
+            const chk = document.createElement("input");
+            chk.type = "checkbox";
+            chk.id = id;
+            chk.value = nome;
+            if (selecoesSalvas[cor]?.includes(nome)) chk.checked = true;
+
+            const lbl = document.createElement("label");
+            lbl.setAttribute("for", id);
+            lbl.innerText = nome;
+            div.appendChild(chk);
+            div.appendChild(lbl);
+            div.appendChild(document.createElement("br"));
+        }
+        container.appendChild(div);
+    }
+}
+
+function salvar() {
+    const cfg = {
         verde: parseInt(document.getElementById("probVerde").value),
         vermelho: parseInt(document.getElementById("probVermelho").value),
         amarelo: parseInt(document.getElementById("probAmarelo").value)
-      };
-      localStorage.setItem("config", JSON.stringify(cfg));
+    };
+    localStorage.setItem("config", JSON.stringify(cfg));
 
-      const selecoes = {};
-      document.querySelectorAll(".cor").forEach(div => {
+    const selecoes = {};
+    document.querySelectorAll(".cor").forEach(div => {
         const cor = div.querySelector("strong").innerText.toLowerCase().replace(":", "");
         selecoes[cor] = Array.from(div.querySelectorAll("input:checked")).map(c => c.value);
-      });
-      localStorage.setItem("selecoes", JSON.stringify(selecoes));
+    });
+    localStorage.setItem("selecoes", JSON.stringify(selecoes));
 
-      alert("Configurações atualizadas com sucesso!");
-    }
+    alert("Configurações salvas!");
+}
 
-    carregar();
-  </script>
+carregar();
+</script>
 </body>
 </html>

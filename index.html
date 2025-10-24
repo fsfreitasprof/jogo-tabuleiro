@@ -52,6 +52,11 @@ button {
 button:hover {
     opacity: 0.9;
 }
+/* Adicionando um estilo para o botão desabilitado */
+button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+}
 #resultado {
     margin-top: 25px;
     font-size: 1rem;
@@ -76,8 +81,62 @@ async function carregarJSON(caminho) {
     return resp.json();
 }
 
+// Lista de Fallback (Plano B)
+const eventosFallback = [
+    { evento: "Volte 3 casas", cor: "vermelho" },
+    { evento: "Avance 3 casas", cor: "verde" },
+    { evento: "Volte para o começo", cor: "amarelo" },
+    { evento: "Jogue novamente sem precisar responder outra pergunta", cor: "amarelo" }
+];
+
+let roletaInterval;
+
+// Função para iniciar a roleta (Req 1)
+function iniciarRoleta(listaEventos) {
+    // Se a lista de eventos for de objetos (fallback), extrai só os textos
+    const listaStrings = listaEventos.map(item => (typeof item === 'string' ? item : item.evento));
+    
+    const resultadoEl = document.getElementById('resultado');
+    
+    // Limpa a roleta anterior se houver
+    if (roletaInterval) clearInterval(roletaInterval);
+
+    roletaInterval = setInterval(() => {
+        const eventoAleatorio = listaStrings[Math.floor(Math.random() * listaStrings.length)];
+        resultadoEl.innerText = eventoAleatorio;
+    }, 50); // Gira bem rápido (50ms)
+}
+
+// Função para definir a cor final (evita repetição de código)
+function definirCor(cor) {
+    const botao = document.getElementById('btn');
+    if (cor === 'verde') {
+        document.body.style.backgroundColor = "#16a34a";
+        botao.style.backgroundColor = "#15803d";
+    } else if (cor === 'vermelho') {
+        document.body.style.backgroundColor = "#dc2626";
+        botao.style.backgroundColor = "#b91c1c";
+    } else { // amarelo ou fallback
+        document.body.style.backgroundColor = "#facc15";
+        botao.style.backgroundColor = "#ca8a04";
+    }
+}
+
 async function sortear() {
+    const botao = document.getElementById('btn');
+    const resultadoEl = document.getElementById('resultado');
+    
+    // Desabilita o botão para evitar cliques duplos
+    botao.disabled = true;
+    resultadoEl.innerText = ""; // Limpa resultado anterior
+
+    let corFinal;
+    let eventoFinal;
+    let listaRoleta;
+
     try {
+        // --- Início do Caminho Feliz (try) ---
+
         // 1. Carrega o config MESTRE
         const config = await carregarJSON("config.json");
         const probabilidades = config.probabilidades;
@@ -91,54 +150,78 @@ async function sortear() {
         ]);
 
         const cores = { verde, vermelho, amarelo };
-        
-        // 3. Sorteia a cor
-        const total = probabilidades.verde + probabilidades.vermelho + probabilidades.amarelo;
-        const rand = Math.random() * total;
-        let corEscolhida;
 
-        if (rand < probabilidades.verde) corEscolhida = "verde";
-        else if (rand < probabilidades.verde + probabilidades.vermelho) corEscolhida = "vermelho";
-        else corEscolhida = "amarelo";
-
-        // 4. Une todas as listas ATIVAS para a cor sorteada
-        let eventos = [];
-        if (selecoes[corEscolhida]) {
-            selecoes[corEscolhida].forEach(lista => {
-                if (cores[corEscolhida][lista]) {
-                    eventos = eventos.concat(cores[corEscolhida][lista]);
+        // 3. Monta a lista GLOBAL para a roleta (Req 1)
+        let eventosGlobais = [];
+        for (const cor in selecoes) {
+            selecoes[cor].forEach(listaNome => {
+                if (cores[cor] && cores[cor][listaNome]) {
+                    eventosGlobais = eventosGlobais.concat(cores[cor][listaNome]);
                 }
             });
         }
         
-        // Se nenhuma lista estiver ativa, informa o usuário
-        if (eventos.length === 0) {
-            document.getElementById('resultado').innerText = "Nenhuma lista de eventos ativa para a cor " + corEscolhida;
-            return;
+        // Se a lista global estiver vazia (JSONs válidos, mas sem listas ativas)
+        if (eventosGlobais.length === 0) {
+            throw new Error("Nenhuma lista de evento ativa."); // Joga para o catch
         }
+        
+        listaRoleta = eventosGlobais;
 
-        // 5. Sorteia o evento e mostra
-        const evento = eventos[Math.floor(Math.random() * eventos.length)];
-        const resultadoEl = document.getElementById('resultado');
-        const botao = document.getElementById('btn');
+        // 4. Sorteia a cor (Lógica normal)
+        const total = probabilidades.verde + probabilidades.vermelho + probabilidades.amarelo;
+        const rand = Math.random() * total;
+        
+        if (rand < probabilidades.verde) corFinal = "verde";
+        else if (rand < probabilidades.verde + probabilidades.vermelho) corFinal = "vermelho";
+        else corFinal = "amarelo";
 
-        if (corEscolhida === 'verde') {
-            document.body.style.backgroundColor = "#16a34a";
-            botao.style.backgroundColor = "#15803d";
-        } else if (corEscolhida === 'vermelho') {
-            document.body.style.backgroundColor = "#dc2626";
-            botao.style.backgroundColor = "#b91c1c";
-        } else {
-            document.body.style.backgroundColor = "#facc15";
-            botao.style.backgroundColor = "#ca8a04";
-        }
+        // 5. Une as listas ATIVAS para a cor sorteada
+        let eventosDaCor = [];
+        selecoes[corFinal].forEach(lista => {
+            if (cores[corFinal][lista]) {
+                eventosDaCor = eventosDaCor.concat(cores[corFinal][lista]);
+            }
+        });
 
-        resultadoEl.innerText = evento;
+        // 6. Sorteia o evento final
+        eventoFinal = eventosDaCor[Math.floor(Math.random() * eventosDaCor.length)];
+
+        // --- Fim do Caminho Feliz ---
 
     } catch (error) {
-        console.error(error);
-        document.getElementById('resultado').innerText = "Erro ao carregar arquivos. Verifique o console (F12).";
+        // --- Início do Fallback (catch) (Req 2) ---
+        console.error("Falha ao carregar JSONs, usando fallback:", error); // Loga o erro para você (F12)
+
+        // A lista da roleta será a lista de fallback
+        listaRoleta = eventosFallback;
+
+        // Sorteia um dos eventos de fallback
+        const sorteio = eventosFallback[Math.floor(Math.random() * eventosFallback.length)];
+        corFinal = sorteio.cor;
+        eventoFinal = sorteio.evento;
+        
+        // --- Fim do Fallback ---
     }
+
+    // --- Início da Exibição (Comum aos dois caminhos) ---
+
+    // 1. Inicia a roleta com a lista definida (ou global ou fallback)
+    iniciarRoleta(listaRoleta);
+
+    // 2. Espera 2 segundos (Req 1)
+    setTimeout(() => {
+        // 3. Para a roleta
+        clearInterval(roletaInterval);
+
+        // 4. Define a cor e o resultado final
+        definirCor(corFinal);
+        resultadoEl.innerText = eventoFinal;
+
+        // 5. Reabilita o botão
+        botao.disabled = false;
+        
+    }, 2000); // 2000ms = 2 segundos
 }
 </script>
 </body>

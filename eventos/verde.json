@@ -1,6 +1,6 @@
 {
   "padrao": [
-    "Avance 2 casa.",
+    "Avance 2 casas.",
     "Ganhe 5 pontos.",
     "Jogue novamente imediatamente sem precisar responder uma pergunta novamente.",
     "Avance 2 casas.",
@@ -16,12 +16,12 @@
   ],
   "extra 2": [
     "Ganhe 20 pontos.",
-    "Todos os jogadores perdem 10 pontos e você ganha 15 pontos",
+    "Todos os jogadores perdem 10 pontos e você ganha 15 pontos.",
     "Você ganha 15 pontos e o jogador à sua escolha ganha 5 pontos.",
-    "Todos os jogadores perdem 15 pontos e você ganha 20 pontos",
+    "Todos os jogadores perdem 15 pontos e você ganha 20 pontos.",
     "Escolha um adversário. Vocês dois avançam 3 casas e ganham 10 pontos cada.",
     "O jogador em último lugar ganha 15 pontos. Você ganha 5 pontos por ajudar.",
-    "Escolha um jogador para retirar 10 pontos",
-    "Escolha um jogador para perder metade dos pontos",
+    "Escolha um jogador para perder 10 pontos.",
+    "Escolha um jogador para perder metade dos pontos."
   ]
 }

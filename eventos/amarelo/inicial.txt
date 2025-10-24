@@ -1,0 +1,6 @@
+Faça um adversário voltar uma casa.
+Transfira seus pontos ganhos ou perdidos nesta pergunta para um adversário (obrigatoriamente).
+Escolha um jogador para responder uma pergunta do tipo médio (azul) e se ele errar, você avança uma casa.
+Todos os jogadores voltam uma casa, exceto você.
+Todos os jogadores, inclusive você, perdem 5 pontos.
+Todos os jogadores, inclusive você, ganham 5 pontos.

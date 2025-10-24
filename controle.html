@@ -10,9 +10,13 @@ body {
     color: #fff;
     font-family: Arial, sans-serif;
     padding: 20px;
+    max-width: 800px;
+    margin: auto;
 }
 h1, h2 {
     color: #0f0;
+    border-bottom: 1px solid #0f0;
+    padding-bottom: 5px;
 }
 .cor {
     margin-bottom: 20px;
@@ -21,21 +25,44 @@ h1, h2 {
     border-radius: 8px;
 }
 button {
-    background-color: #2563eb;
-    color: white;
+    background-color: #0f0;
+    color: #000;
     border: none;
     border-radius: 8px;
     padding: 10px 20px;
     cursor: pointer;
     font-size: 16px;
+    font-weight: bold;
 }
 button:hover {
     opacity: 0.8;
+}
+input[type="number"] {
+    width: 60px;
+    font-size: 16px;
+}
+label {
+    margin-left: 5px;
+    user-select: none;
+}
+textarea {
+    width: 98%;
+    height: 250px;
+    background-color: #222;
+    color: #fff;
+    font-family: monospace;
+    font-size: 14px;
+    padding: 10px;
+}
+#erro {
+    color: #ff4d4d;
+    font-weight: bold;
 }
 </style>
 </head>
 <body>
 <h1>Painel de Controle</h1>
+<div id="erro"></div>
 <h2>Probabilidades</h2>
 <div>Verde: <input type="number" id="probVerde" min="0" value="2"></div>
 <div>Vermelho: <input type="number" id="probVermelho" min="0" value="1"></div>
@@ -44,71 +71,103 @@ button:hover {
 <h2>Listas disponíveis</h2>
 <div id="listas"></div>
 
-<button onclick="salvar()">Salvar Configurações</button>
+<button onclick="gerar()">GERAR CÓDIGO</button>
+
+<hr>
+<h2>Copie e cole este código no arquivo <code>config.json</code></h2>
+<textarea id="outputJSON" readonly></textarea>
 
 <script>
+// ATUALIZAÇÃO FORÇADA (Cache Buster)
 async function carregarJSON(caminho) {
     const resp = await fetch(caminho + "?v=" + Date.now());
+    if (!resp.ok) throw new Error("Falha ao carregar: " + caminho);
     return resp.json();
 }
 
+const erroEl = document.getElementById("erro");
+
 async function carregar() {
-    const cfg = await carregarJSON("config.json");
-    document.getElementById("probVerde").value = cfg.verde;
-    document.getElementById("probVermelho").value = cfg.vermelho;
-    document.getElementById("probAmarelo").value = cfg.amarelo;
-
-    const listas = {
-        verde: await carregarJSON("eventos/verde.json"),
-        vermelho: await carregarJSON("eventos/vermelho.json"),
-        amarelo: await carregarJSON("eventos/amarelo.json")
-    };
-
-    const selecoesSalvas = JSON.parse(localStorage.getItem("selecoes")) || {};
-    const container = document.getElementById("listas");
-
-    for (const cor in listas) {
-        const div = document.createElement("div");
-        div.classList.add("cor");
-        div.innerHTML = `<strong>${cor.toUpperCase()}:</strong><br>`;
-
-        for (const nome in listas[cor]) {
-            const id = `${cor}-${nome}`;
-            const chk = document.createElement("input");
-            chk.type = "checkbox";
-            chk.id = id;
-            chk.value = nome;
-            if (selecoesSalvas[cor]?.includes(nome)) chk.checked = true;
-
-            const lbl = document.createElement("label");
-            lbl.setAttribute("for", id);
-            lbl.innerText = nome;
-            div.appendChild(chk);
-            div.appendChild(lbl);
-            div.appendChild(document.createElement("br"));
+    try {
+        // Carrega o config.json ATUAL para preencher os campos
+        const cfg = await carregarJSON("config.json");
+        
+        if (cfg.probabilidades) {
+            document.getElementById("probVerde").value = cfg.probabilidades.verde;
+            document.getElementById("probVermelho").value = cfg.probabilidades.vermelho;
+            document.getElementById("probAmarelo").value = cfg.probabilidades.amarelo;
         }
-        container.appendChild(div);
+
+        // Carrega os arquivos de eventos para saber QUAIS listas existem
+        const listas = {
+            verde: await carregarJSON("eventos/verde.json"),
+            vermelho: await carregarJSON("eventos/vermelho.json"),
+            amarelo: await carregarJSON("eventos/amarelo.json")
+        };
+
+        const selecoesSalvas = cfg.listas_ativas || {}; // Pega as listas ATIVAS do config.json
+        const container = document.getElementById("listas");
+
+        for (const cor in listas) {
+            const div = document.createElement("div");
+            div.classList.add("cor");
+            div.innerHTML = `<strong style="color: ${cor}; text-transform: uppercase;">${cor}:</strong><br>`;
+
+            // Cria um checkbox para cada lista dentro do arquivo (ex: "padrao", "3A")
+            for (const nome in listas[cor]) {
+                const id = `${cor}-${nome}`;
+                const chk = document.createElement("input");
+                chk.type = "checkbox";
+                chk.id = id;
+                chk.value = nome;
+                
+                // Marca o checkbox se ele estiver na lista de "listas_ativas"
+                if (selecoesSalvas[cor] && selecoesSalvas[cor].includes(nome)) {
+                    chk.checked = true;
+                }
+
+                const lbl = document.createElement("label");
+                lbl.setAttribute("for", id);
+                lbl.innerText = nome;
+                div.appendChild(chk);
+                div.appendChild(lbl);
+                div.appendChild(document.createElement("br"));
+            }
+            container.appendChild(div);
+        }
+    } catch (error) {
+        console.error(error);
+        erroEl.innerText = "ERRO: Não foi possível carregar os arquivos JSON. Verifique se os arquivos (config.json, eventos/verde.json, etc.) existem no repositório do GitHub e se os nomes estão corretos.";
     }
 }
 
-function salvar() {
-    const cfg = {
-        verde: parseInt(document.getElementById("probVerde").value),
-        vermelho: parseInt(document.getElementById("probVermelho").value),
-        amarelo: parseInt(document.getElementById("probAmarelo").value)
+function gerar() {
+    // 1. Monta o objeto de probabilidades
+    const probabilidades = {
+        verde: parseInt(document.getElementById("probVerde").value) || 0,
+        vermelho: parseInt(document.getElementById("probVermelho").value) || 0,
+        amarelo: parseInt(document.getElementById("probAmarelo").value) || 0
     };
-    localStorage.setItem("config", JSON.stringify(cfg));
 
-    const selecoes = {};
+    // 2. Monta o objeto de listas ativas
+    const listas_ativas = {};
     document.querySelectorAll(".cor").forEach(div => {
         const cor = div.querySelector("strong").innerText.toLowerCase().replace(":", "");
-        selecoes[cor] = Array.from(div.querySelectorAll("input:checked")).map(c => c.value);
+        listas_ativas[cor] = Array.from(div.querySelectorAll("input:checked")).map(c => c.value);
     });
-    localStorage.setItem("selecoes", JSON.stringify(selecoes));
 
-    alert("Configurações salvas!");
+    // 3. Junta tudo no objeto final
+    const configFinal = {
+        probabilidades,
+        listas_ativas
+    };
+
+    // 4. Mostra no <textarea> formatado (JSON.stringify com null, 2)
+    const output = JSON.stringify(configFinal, null, 2);
+    document.getElementById("outputJSON").value = output;
 }
 
+// Carrega as configurações atuais assim que a página abre
 carregar();
 </script>
 </body>

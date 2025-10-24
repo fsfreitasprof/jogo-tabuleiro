@@ -6,7 +6,7 @@
 <title>Sorte ou Azar?</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-/* O CSS (style) é exatamente o mesmo de antes. */
+/* O CSS (style) é o mesmo de antes, com uma adição */
 :root {
     --cor-bg: #f1f5f9;
     --cor-card: #ffffff;
@@ -62,6 +62,12 @@ button:disabled {
     min-height: 2em;
     font-family: Arial, sans-serif;
     transition: all 0.3s;
+    
+    /* --- ADICIONADO AQUI --- */
+    /* Garante que o texto quebre a linha e não vaze da caixa */
+    word-wrap: break-word;      /* Para navegadores mais antigos */
+    overflow-wrap: break-word;  /* O padrão moderno */
+    /* ----------------------- */
 }
 </style>
 </head>
@@ -73,14 +79,15 @@ button:disabled {
 </div>
 
 <script>
-// ATUALIZAÇÃO FORÇADA (Cache Buster)
+// O SCRIPT JAVASCRIPT É EXATAMENTE O MESMO DA ÚLTIMA VERSÃO
+// (Com a roleta, fallback e botão de recarregar)
+// ...
 async function carregarJSON(caminho) {
     const resp = await fetch(caminho + "?v=" + Date.now());
     if (!resp.ok) throw new Error("Falha ao carregar: " + caminho);
     return resp.json();
 }
 
-// Lista de Fallback (Plano B)
 const eventosFallback = [
     { evento: "Volte 3 casas", cor: "vermelho" },
     { evento: "Avance 3 casas", cor: "verde" },
@@ -90,7 +97,6 @@ const eventosFallback = [
 
 let roletaInterval;
 
-// Função para iniciar a roleta (Req 1)
 function iniciarRoleta(listaEventos) {
     const listaStrings = listaEventos.map(item => (typeof item === 'string' ? item : item.evento));
     const resultadoEl = document.getElementById('resultado');
@@ -99,10 +105,9 @@ function iniciarRoleta(listaEventos) {
     roletaInterval = setInterval(() => {
         const eventoAleatorio = listaStrings[Math.floor(Math.random() * listaStrings.length)];
         resultadoEl.innerText = eventoAleatorio;
-    }, 50); // Gira rápido
+    }, 50); 
 }
 
-// Função para definir a cor final
 function definirCor(cor) {
     const botao = document.getElementById('btn');
     if (cor === 'verde') {
@@ -111,7 +116,7 @@ function definirCor(cor) {
     } else if (cor === 'vermelho') {
         document.body.style.backgroundColor = "#dc2626";
         botao.style.backgroundColor = "#b91c1c";
-    } else { // amarelo ou fallback
+    } else { 
         document.body.style.backgroundColor = "#facc15";
         botao.style.backgroundColor = "#ca8a04";
     }
@@ -121,7 +126,6 @@ async function sortear() {
     const botao = document.getElementById('btn');
     const resultadoEl = document.getElementById('resultado');
     
-    // Desabilita o botão para evitar cliques duplos
     botao.disabled = true;
     resultadoEl.innerText = ""; 
 
@@ -130,7 +134,6 @@ async function sortear() {
     let listaRoleta;
 
     try {
-        // --- Início do Caminho Feliz (try) ---
         const config = await carregarJSON("config.json");
         const probabilidades = config.probabilidades;
         const selecoes = config.listas_ativas;
@@ -153,7 +156,7 @@ async function sortear() {
         }
         
         if (eventosGlobais.length === 0) {
-            throw new Error("Nenhuma lista de evento ativa."); // Joga para o catch
+            throw new Error("Nenhuma lista de evento ativa.");
         }
         
         listaRoleta = eventosGlobais;
@@ -175,7 +178,6 @@ async function sortear() {
         eventoFinal = eventosDaCor[Math.floor(Math.random() * eventosDaCor.length)];
 
     } catch (error) {
-        // --- Início do Fallback (catch) ---
         console.error("Falha ao carregar JSONs, usando fallback:", error); 
         listaRoleta = eventosFallback;
         const sorteio = eventosFallback[Math.floor(Math.random() * eventosFallback.length)];
@@ -183,33 +185,20 @@ async function sortear() {
         eventoFinal = sorteio.evento;
     }
 
-    // --- Início da Exibição (Comum aos dois caminhos) ---
-
-    // 1. Inicia a roleta
     iniciarRoleta(listaRoleta);
 
-    // 2. Espera 2 segundos
     setTimeout(() => {
-        // 3. Para a roleta
         clearInterval(roletaInterval);
-
-        // 4. Define a cor e o resultado final
         definirCor(corFinal);
         resultadoEl.innerText = eventoFinal;
 
-        // 5. *** AQUI ESTÁ A MUDANÇA ***
-        // Altera o botão para recarregar a página
         botao.innerText = "Quer sortear novamente?";
-        
-        // Remove o 'onclick' antigo e adiciona o novo
         botao.onclick = function() {
             location.reload(); 
         };
-        
-        // Reabilita o botão (agora com a nova função)
         botao.disabled = false;
         
-    }, 2000); // 2000ms = 2 segundos
+    }, 2000); 
 }
 </script>
 </body>

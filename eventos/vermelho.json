@@ -8,6 +8,20 @@
   ],
   "extra": [
     "Perca todos os seus pontos.",
-    "Volte ao início."
+    "Volte ao início.",
+    "Perca metade dos seus pontos (arredondado para cima).",
+    "Na sua próxima rodada você perderá o dobro de pontos.",
+    "O jogador em primeiro lugar ganha 10 pontos.",
+    "Volte 5 casas e perca 10 pontos."
+  ],
+  "extra 2": [
+    "Perca 10 pontos.",
+    "Você perde 15 pontos e o jogador à sua direita ganha 5 pontos.",
+    "Todos os jogadores do seu grupo ganham 5 pontos. e você perde 10",
+    "Você volta 5 casas e perdem 5 pontos cada.",
+    "Transfira 10 dos seus pontos para o jogador em último lugar. (Se você é o último, perca 10 pontos).",
+    "Perca todos os seus pontos totais.",
+    "Volte ao início com todas as peças.",
+    "Seus pontos totais cairão para metade."
   ]
 }

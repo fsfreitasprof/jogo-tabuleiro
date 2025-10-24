@@ -1,138 +1,84 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sorte ou Azar?</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<style>
-:root {
-    --cor-bg: #f1f5f9;
-    --cor-card: #ffffff;
-    --cor-botao: #2563eb;
-}
-
-body {
-    font-family: 'Press Start 2P', cursive;
-    background-color: var(--cor-bg);
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    transition: background-color 0.5s;
-}
-
-.card {
-    background-color: var(--cor-card);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    text-align: center;
-    width: 90%;
-    max-width: 400px;
-}
-
-h1 {
-    font-size: 1.6rem;
-    margin-bottom: 20px;
-    color: #111827;
-}
-
-button {
-    background: var(--cor-botao);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 15px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    width: 100%;
-    transition: all 0.3s;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-#resultado {
-    margin-top: 25px;
-    font-size: 1rem;
-    min-height: 2em;
-    font-family: Arial, sans-serif;
-    transition: all 0.3s;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorte ou Azar</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    button {
+      padding: 12px 24px;
+      margin-top: 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 30px;
+      font-size: 22px;
+    }
+  </style>
 </head>
 <body>
-<div class="card">
-    <h1>Sorte ou Azar?</h1>
-    <button id="btn" onclick="sortear()">Sortear</button>
-    <div id="resultado"></div>
-</div>
+  <h1>Sorte ou Azar?</h1>
+  <button id="sortear">Sortear</button>
+  <div id="resultado"></div>
 
-<script>
-async function carregarConfig() {
-    const res = await fetch("config.json?v=" + Date.now());
-    return await res.json();
-}
+  <script>
+    async function carregarConfig() {
+      const localConfig = localStorage.getItem("config");
+      if (localConfig) return JSON.parse(localConfig);
 
-async function carregarEventos(cor, arquivos) {
-    const eventos = [];
-    for (const arquivo of arquivos) {
-        const resp = await fetch(`eventos/${cor}/${arquivo}?v=${Date.now()}`);
-        const texto = await resp.text();
-        const linhas = texto.split("\n").map(l => l.trim()).filter(l => l);
-        eventos.push(...linhas);
+      const resp = await fetch("config.json?v=" + Date.now());
+      return await resp.json();
     }
-    return eventos;
-}
 
-async function sortear() {
-    const resultadoEl = document.getElementById("resultado");
-    const botao = document.getElementById("btn");
+    async function carregarListas() {
+      const resp = await fetch("eventos/lista.json?v=" + Date.now());
+      return await resp.json();
+    }
 
-    const config = await carregarConfig();
-    const { probabilidades, listas } = config;
+    async function carregarArquivo(caminho) {
+      const resp = await fetch(caminho + "?v=" + Date.now());
+      return await resp.text();
+    }
 
-    const total = probabilidades.verde + probabilidades.vermelho + probabilidades.amarelo;
-    const r = Math.random() * total;
-    let cor;
-    if (r < probabilidades.verde) cor = "verde";
-    else if (r < probabilidades.verde + probabilidades.vermelho) cor = "vermelho";
-    else cor = "amarelo";
+    async function sortear() {
+      const config = await carregarConfig();
+      const listas = await carregarListas();
 
-    const arquivos = listas[cor];
-    const eventos = await carregarEventos(cor, arquivos);
-    const eventoSorteado = eventos[Math.floor(Math.random() * eventos.length)];
+      const total = config.verde + config.vermelho + config.amarelo;
+      const rand = Math.random() * total;
 
-    resultadoEl.innerText = "Sorteando...";
-    let contador = 0;
-    const iteracoes = 20;
-    const intervalo = 80;
+      let cor;
+      if (rand < config.verde) cor = "verde";
+      else if (rand < config.verde + config.vermelho) cor = "vermelho";
+      else cor = "amarelo";
 
-    const anim = setInterval(() => {
-        resultadoEl.innerText = eventos[Math.floor(Math.random() * eventos.length)];
-        contador++;
-        if (contador >= iteracoes) {
-            clearInterval(anim);
-            resultadoEl.innerText = eventoSorteado;
+      // Carrega os arquivos selecionados
+      const selecoes = JSON.parse(localStorage.getItem("selecoes") || "{}");
+      const selecionados = selecoes[cor] || ["padrao.txt"];
 
-            if (cor === "verde") {
-                document.body.style.backgroundColor = "#16a34a";
-                botao.style.backgroundColor = "#15803d";
-            } else if (cor === "vermelho") {
-                document.body.style.backgroundColor = "#dc2626";
-                botao.style.backgroundColor = "#b91c1c";
-            } else {
-                document.body.style.backgroundColor = "#facc15";
-                botao.style.backgroundColor = "#ca8a04";
-            }
-        }
-    }, intervalo);
-}
-</script>
+      // Junta todos os eventos das listas selecionadas
+      let eventos = [];
+      for (const arquivo of selecionados) {
+        const conteudo = await carregarArquivo(`eventos/${cor}/${arquivo}`);
+        eventos.push(...conteudo.split("\n").filter(l => l.trim() !== ""));
+      }
+
+      const evento = eventos[Math.floor(Math.random() * eventos.length)];
+      document.getElementById("resultado").innerHTML =
+        `<strong style="color:${cor}">${cor.toUpperCase()}</strong>: ${evento}`;
+    }
+
+    document.getElementById("sortear").addEventListener("click", sortear);
+  </script>
 </body>
 </html>

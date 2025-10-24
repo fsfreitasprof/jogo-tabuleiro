@@ -1,0 +1,5 @@
+{
+  "verde": ["padrao.txt", "3A.txt", "extra.txt"],
+  "vermelho": ["padrao.txt", "penalidade.txt"],
+  "amarelo": ["padrao.txt", "mistura.txt"]
+}

@@ -1,0 +1,13 @@
+{
+  "padrao": [
+    "Volte 1 casa.",
+    "Perca 5 pontos.",
+    "Fique uma rodada sem jogar.",
+    "Volte 2 casas.",
+    "Você não ganha pontos nesta rodada."
+  ],
+  "extra": [
+    "Perca todos os seus pontos.",
+    "Volte ao início."
+  ]
+}

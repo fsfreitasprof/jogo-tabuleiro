@@ -5,8 +5,14 @@
     "amarelo": 1
   },
   "listas_ativas": {
-    "verde": ["padrao"],
-    "vermelho": ["padrao"],
-    "amarelo": ["padrao"]
+    "verde": [
+      "Texte 1"
+    ],
+    "vermelho": [
+      "padrao"
+    ],
+    "amarelo": [
+      "padrao"
+    ]
   }
 }

@@ -6,7 +6,7 @@
 <title>Sorte ou Azar?</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-/* O CSS (style) é exatamente o mesmo de antes. Pode copiar e colar. */
+/* O CSS (style) é exatamente o mesmo de antes. */
 :root {
     --cor-bg: #f1f5f9;
     --cor-card: #ffffff;
@@ -52,7 +52,6 @@ button {
 button:hover {
     opacity: 0.9;
 }
-/* Adicionando um estilo para o botão desabilitado */
 button:disabled {
     background-color: #9ca3af;
     cursor: not-allowed;
@@ -93,21 +92,17 @@ let roletaInterval;
 
 // Função para iniciar a roleta (Req 1)
 function iniciarRoleta(listaEventos) {
-    // Se a lista de eventos for de objetos (fallback), extrai só os textos
     const listaStrings = listaEventos.map(item => (typeof item === 'string' ? item : item.evento));
-    
     const resultadoEl = document.getElementById('resultado');
-    
-    // Limpa a roleta anterior se houver
     if (roletaInterval) clearInterval(roletaInterval);
 
     roletaInterval = setInterval(() => {
         const eventoAleatorio = listaStrings[Math.floor(Math.random() * listaStrings.length)];
         resultadoEl.innerText = eventoAleatorio;
-    }, 50); // Gira bem rápido (50ms)
+    }, 50); // Gira rápido
 }
 
-// Função para definir a cor final (evita repetição de código)
+// Função para definir a cor final
 function definirCor(cor) {
     const botao = document.getElementById('btn');
     if (cor === 'verde') {
@@ -128,7 +123,7 @@ async function sortear() {
     
     // Desabilita o botão para evitar cliques duplos
     botao.disabled = true;
-    resultadoEl.innerText = ""; // Limpa resultado anterior
+    resultadoEl.innerText = ""; 
 
     let corFinal;
     let eventoFinal;
@@ -136,13 +131,10 @@ async function sortear() {
 
     try {
         // --- Início do Caminho Feliz (try) ---
-
-        // 1. Carrega o config MESTRE
         const config = await carregarJSON("config.json");
         const probabilidades = config.probabilidades;
         const selecoes = config.listas_ativas;
 
-        // 2. Carrega todos os eventos
         const [verde, vermelho, amarelo] = await Promise.all([
             carregarJSON("eventos/verde.json"),
             carregarJSON("eventos/vermelho.json"),
@@ -150,8 +142,7 @@ async function sortear() {
         ]);
 
         const cores = { verde, vermelho, amarelo };
-
-        // 3. Monta a lista GLOBAL para a roleta (Req 1)
+        
         let eventosGlobais = [];
         for (const cor in selecoes) {
             selecoes[cor].forEach(listaNome => {
@@ -161,14 +152,12 @@ async function sortear() {
             });
         }
         
-        // Se a lista global estiver vazia (JSONs válidos, mas sem listas ativas)
         if (eventosGlobais.length === 0) {
             throw new Error("Nenhuma lista de evento ativa."); // Joga para o catch
         }
         
         listaRoleta = eventosGlobais;
 
-        // 4. Sorteia a cor (Lógica normal)
         const total = probabilidades.verde + probabilidades.vermelho + probabilidades.amarelo;
         const rand = Math.random() * total;
         
@@ -176,40 +165,30 @@ async function sortear() {
         else if (rand < probabilidades.verde + probabilidades.vermelho) corFinal = "vermelho";
         else corFinal = "amarelo";
 
-        // 5. Une as listas ATIVAS para a cor sorteada
         let eventosDaCor = [];
         selecoes[corFinal].forEach(lista => {
             if (cores[corFinal][lista]) {
                 eventosDaCor = eventosDaCor.concat(cores[corFinal][lista]);
             }
         });
-
-        // 6. Sorteia o evento final
+        
         eventoFinal = eventosDaCor[Math.floor(Math.random() * eventosDaCor.length)];
 
-        // --- Fim do Caminho Feliz ---
-
     } catch (error) {
-        // --- Início do Fallback (catch) (Req 2) ---
-        console.error("Falha ao carregar JSONs, usando fallback:", error); // Loga o erro para você (F12)
-
-        // A lista da roleta será a lista de fallback
+        // --- Início do Fallback (catch) ---
+        console.error("Falha ao carregar JSONs, usando fallback:", error); 
         listaRoleta = eventosFallback;
-
-        // Sorteia um dos eventos de fallback
         const sorteio = eventosFallback[Math.floor(Math.random() * eventosFallback.length)];
         corFinal = sorteio.cor;
         eventoFinal = sorteio.evento;
-        
-        // --- Fim do Fallback ---
     }
 
     // --- Início da Exibição (Comum aos dois caminhos) ---
 
-    // 1. Inicia a roleta com a lista definida (ou global ou fallback)
+    // 1. Inicia a roleta
     iniciarRoleta(listaRoleta);
 
-    // 2. Espera 2 segundos (Req 1)
+    // 2. Espera 2 segundos
     setTimeout(() => {
         // 3. Para a roleta
         clearInterval(roletaInterval);
@@ -218,7 +197,16 @@ async function sortear() {
         definirCor(corFinal);
         resultadoEl.innerText = eventoFinal;
 
-        // 5. Reabilita o botão
+        // 5. *** AQUI ESTÁ A MUDANÇA ***
+        // Altera o botão para recarregar a página
+        botao.innerText = "Quer sortear novamente?";
+        
+        // Remove o 'onclick' antigo e adiciona o novo
+        botao.onclick = function() {
+            location.reload(); 
+        };
+        
+        // Reabilita o botão (agora com a nova função)
         botao.disabled = false;
         
     }, 2000); // 2000ms = 2 segundos

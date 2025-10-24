@@ -2,34 +2,35 @@
   "padrao": [
     "Faça um adversário voltar uma casa.",
     "Transfira seus pontos ganhos ou perdidos nesta pergunta para um adversário.",
-    "Escolha um jogador para responder uma pergunta do tipo médio (azul).",
+    "Escolha um jogador para responder uma pergunta do tipo azul.",
     "Todos os jogadores voltam uma casa, exceto você.",
     "Todos os jogadores, inclusive você, perdem 5 pontos.",
     "Todos os jogadores, inclusive você, ganham 5 pontos."
   ],
   "3A": [
-    "Se o Leonardo (3ºA) estiver dormindo, todos voltam 2 casas (com todas as peças). Se ele não esta presente todos perdem 5 pontos."
+    "O Leonardo (3ºA) está dormindo? Se sim, todos voltam 2 casas. Se ele não estiver presente, todos perdem 5 pontos."
   ],
   "3B": [
-    "Se o grupo do Daniel (3ºB) não estiver fazendo nada: mande ele fazerem e ganho 5 pontos, se não perca 5 pontos."
+    "O grupo do Daniel (3ºB) está 'à toa' (mexendo no celular, distraído)? Se sim, chame a atenção deles e ganhe 5 pontos por ajudar. Se eles já estiverem jogando, não acontece nada"
   ],
   "3C": [
-    "O Eduardo Macário (3ºC) veio hoje? Se sim todos ganham 5 pontos, senão todos perdem 5 pontos."
+    "O Eduardo Macário (3ºC) veio hoje? Se sim, todos ganham 5 pontos. Senão, todos perdem 5 pontos."
   ],
   "3D": [
-    "O Pietro (3ºD) esta mechendo no celular ou esta dormindo, então todos voltam 2 casas (com todas as peças). Se ele não esta presente todos perdem 5 pontos.",
-    "A Ana Luiza (3ºD) esta em pé, mande ele voltar para o lugar e ganho 5 pontos, se não perca 5 pontos."
+    "O Pietro (3ºD) está mexendo no celular ou dormindo? Se sim, todos voltam 2 casas. Se ele não estiver presente, todos perdem 5 pontos.",
+    "A Ana Luiza (3ºD) está em pé? Mande-a voltar para o lugar e ganhe 5 pontos. Senão, perca 5 pontos."
   ],
   "3 Geral": [
-    "Tem alguma Maria no grupo? Se for Maria Eduardo todos perdem 3 pontos, se não.",
-    "Se tiver alguém no celular fazendo o que não deveria, ele perde 10 pontos.",
-    "Se seu grupo é apenas de heteros, então todos voltam 1 casa (com todas as peças), se não todos avançam 1 casa (com todas as peças).",
-    "Se tem um casal no seu grupo, eles ganham 3 pontos e os outros ganham apenas 1 ponto."
+    "Tem alguma Maria no grupo? Se for Maria Eduarda, todos perdem 3 pontos. Se for outra Maria, todos ganham 3 pontos.",
+    "Se tiver alguém no celular fazendo o que não deveria, essa pessoa perde 10 pontos.",
+    "Seu grupo é formado apenas por héteros? Se sim, todos voltam 1 casa. Senão, todos avançam 1 casa.",
+    "Se tem um casal no seu grupo, eles ganham 3 pontos e os outros membros do grupo ganham apenas 1 ponto."
   ],
   "Desafios": [
-    "Desafio: Chame atenção de todos da sala e diga de quem da escola você mais gosta: ganha 10 pontos, se não fizer perde 3 pontos.",
-    "Desafio: Levante e de um grito bem alto: ganha 5 pontos, se não fizer perde 3 pontos.",
-    "Desafio: Durante uma rodada completa, você deve terminar todas as frases com 'né' ganha 5 pontos, se não fizer perde 3 pontos."
+    "Desafio: Chame a atenção de todos da sala e diga de quem você mais gosta na escola. Se fizer, ganhe 10 pontos. Senão, perca 3 pontos.",
+    "Desafio: Levante-se e dê um grito bem alto. Se fizer, ganhe 5 pontos. Senão, perca 3 pontos.",
+    "Desafio: Durante uma rodada inteira, termine todas as suas frases com 'né'. Se conseguir, ganhe 5 pontos. Senão, perca 3 pontos.",
+    "Desafio: Faça uma imitação de um professor da escola. Se o seu grupo adivinhar quem é, ganhe 5 pontos. Senão, perca 5.",
+    "Desafio: Chame a atenção de todos da sala e faça um elogio a um professor de matemática da escola. Se você cumprir, ganhe 10 pontos. Senão, perca 5 pontos."
   ]
-
 }

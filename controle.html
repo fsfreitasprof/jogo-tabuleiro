@@ -8,130 +8,107 @@
 body {
     font-family: Arial, sans-serif;
     background: #f1f5f9;
+    margin: 0;
     padding: 20px;
-    color: #111;
 }
-h1 {
-    text-align: center;
-}
-section {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-label {
-    display: inline-block;
-    width: 100px;
+h2 { margin-top: 40px; }
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 600px;
+    margin: auto;
 }
 input[type="number"] {
     width: 60px;
+}
+.color-section {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 15px;
+    background: #fff;
 }
 button {
     background: #2563eb;
     color: white;
     border: none;
-    border-radius: 10px;
     padding: 10px 20px;
-    cursor: pointer;
-}
-button:hover {
-    opacity: 0.9;
-}
-.checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.color-title {
+    border-radius: 8px;
     font-weight: bold;
-    margin-top: 15px;
+    cursor: pointer;
+    margin-top: 20px;
 }
 </style>
 </head>
 <body>
+<div class="container">
+    <h1>Controle de Sorteio</h1>
 
-<h1>Controle de Sorteio</h1>
+    <div class="color-section">
+        <h2>Probabilidades</h2>
+        <label>Verde: <input id="verdeProb" type="number" min="0" value="2"></label><br>
+        <label>Vermelho: <input id="vermelhoProb" type="number" min="0" value="1"></label><br>
+        <label>Amarelo: <input id="amareloProb" type="number" min="0" value="1"></label>
+    </div>
 
-<section>
-    <h2>Probabilidades</h2>
-    <label>Verde:</label> <input id="verdeProb" type="number" min="0" value="2"><br><br>
-    <label>Vermelho:</label> <input id="vermelhoProb" type="number" min="0" value="1"><br><br>
-    <label>Amarelo:</label> <input id="amareloProb" type="number" min="0" value="1"><br><br>
-</section>
-
-<section>
-    <h2>Seleção de Listas</h2>
     <div id="listas"></div>
-</section>
 
-<div style="text-align:center;">
     <button onclick="salvarConfig()">Salvar Configurações</button>
 </div>
 
 <script>
-const cores = ["verde","vermelho","amarelo"];
-let selecaoArquivos = { verde: [], vermelho: [], amarelo: [] };
+const cores = ["verde", "vermelho", "amarelo"];
 
-async function carregarArquivos() {
-    const container = document.getElementById("listas");
+async function carregarListas() {
+    const listasDiv = document.getElementById("listas");
+    listasDiv.innerHTML = "";
+
     for (const cor of cores) {
-        const div = document.createElement("div");
-        div.innerHTML = `<div class='color-title' style='color:${cor}'>${cor.toUpperCase()}</div>`;
-        const group = document.createElement("div");
-        group.className = "checkbox-group";
+        const resp = await fetch(`eventos/${cor}/?v=${Date.now()}`);
+        const html = await resp.text();
 
-        try {
-            const resp = await fetch(`eventos/${cor}/`);
-            if (!resp.ok) throw new Error();
-        } catch {
-            group.innerHTML = "<i>Pasta não acessível no GitHub Pages.</i>";
-            div.appendChild(group);
-            container.appendChild(div);
-            continue;
-        }
+        // GitHub Pages não permite listar diretórios, então usamos nomes fixos
+        const arquivos = ["padrao.txt"]; // pode adicionar manualmente novos arquivos
 
-        // GitHub Pages não lista diretórios automaticamente, então listamos manualmente:
-        const arquivosPadrao = ["padrao.txt", "3A.txt", "extra.txt"];
-        for (const nome of arquivosPadrao) {
-            const lbl = document.createElement("label");
-            lbl.style.display = "inline-flex";
-            lbl.style.alignItems = "center";
-            lbl.style.gap = "5px";
-            lbl.innerHTML = `<input type='checkbox' value='${nome}' data-cor='${cor}'> ${nome}`;
-            group.appendChild(lbl);
-        }
-
-        div.appendChild(group);
-        container.appendChild(div);
+        const section = document.createElement("div");
+        section.className = "color-section";
+        section.innerHTML = `<h2>${cor.charAt(0).toUpperCase() + cor.slice(1)}</h2>`;
+        arquivos.forEach(a => {
+            const id = `${cor}-${a}`;
+            section.innerHTML += `<label><input type="checkbox" id="${id}" checked> ${a}</label><br>`;
+        });
+        listasDiv.appendChild(section);
     }
 }
 
 function salvarConfig() {
-    const verde = parseInt(document.getElementById("verdeProb").value) || 0;
-    const vermelho = parseInt(document.getElementById("vermelhoProb").value) || 0;
-    const amarelo = parseInt(document.getElementById("amareloProb").value) || 0;
-
-    const checkboxes = document.querySelectorAll("input[type=checkbox]");
-    const listas = { verde: [], vermelho: [], amarelo: [] };
-    checkboxes.forEach(ch => {
-        if (ch.checked) listas[ch.dataset.cor].push(ch.value);
-    });
-
     const config = {
-        probabilidades: { verde, vermelho, amarelo },
-        listas
+        probabilidades: {
+            verde: parseInt(document.getElementById("verdeProb").value),
+            vermelho: parseInt(document.getElementById("vermelhoProb").value),
+            amarelo: parseInt(document.getElementById("amareloProb").value)
+        },
+        listas: {}
     };
 
+    for (const cor of cores) {
+        const marcados = [];
+        document.querySelectorAll(`[id^=${cor}-]`).forEach(chk => {
+            if (chk.checked) marcados.push(chk.id.split("-")[1]);
+        });
+        config.listas[cor] = marcados;
+    }
+
     const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "config.json";
-    link.click();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "config.json";
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
-carregarArquivos();
+carregarListas();
 </script>
 </body>
 </html>

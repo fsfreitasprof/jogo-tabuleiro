@@ -6,5 +6,30 @@
     "Todos os jogadores voltam uma casa, exceto você.",
     "Todos os jogadores, inclusive você, perdem 5 pontos.",
     "Todos os jogadores, inclusive você, ganham 5 pontos."
+  ],
+  "3A": [
+    "Se o Leonardo (3ºA) estiver dormindo, todos voltam 2 casas (com todas as peças). Se ele não esta presente todos perdem 5 pontos."
+  ],
+  "3B": [
+    "Se o grupo do Daniel (3ºB) não estiver fazendo nada: mande ele fazerem e ganho 5 pontos, se não perca 5 pontos."
+  ],
+  "3C": [
+    "O Eduardo Macário (3ºC) veio hoje? Se sim todos ganham 5 pontos, senão todos perdem 5 pontos."
+  ],
+  "3D": [
+    "O Pietro (3ºD) esta mechendo no celular ou esta dormindo, então todos voltam 2 casas (com todas as peças). Se ele não esta presente todos perdem 5 pontos.",
+    "A Ana Luiza (3ºD) esta em pé, mande ele voltar para o lugar e ganho 5 pontos, se não perca 5 pontos."
+  ],
+  "3 Geral": [
+    "Tem alguma Maria no grupo? Se for Maria Eduardo todos perdem 3 pontos, se não.",
+    "Se tiver alguém no celular fazendo o que não deveria, ele perde 10 pontos.",
+    "Se seu grupo é apenas de heteros, então todos voltam 1 casa (com todas as peças), se não todos avançam 1 casa (com todas as peças).",
+    "Se tem um casal no seu grupo, eles ganham 3 pontos e os outros ganham apenas 1 ponto."
+  ],
+  "Desafios": [
+    "Desafio: Chame atenção de todos da sala e diga de quem da escola você mais gosta: ganha 10 pontos, se não fizer perde 3 pontos.",
+    "Desafio: Levante e de um grito bem alto: ganha 5 pontos, se não fizer perde 3 pontos.",
+    "Desafio: Durante uma rodada completa, você deve terminar todas as frases com 'né' ganha 5 pontos, se não fizer perde 3 pontos."
   ]
+
 }

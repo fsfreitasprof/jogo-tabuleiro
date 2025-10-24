@@ -6,6 +6,7 @@
 <title>Sorte ou Azar?</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
+/* O CSS (style) é exatamente o mesmo de antes. Pode copiar e colar. */
 :root {
     --cor-bg: #f1f5f9;
     --cor-card: #ffffff;
@@ -68,58 +69,76 @@ button:hover {
 </div>
 
 <script>
+// ATUALIZAÇÃO FORÇADA (Cache Buster)
 async function carregarJSON(caminho) {
     const resp = await fetch(caminho + "?v=" + Date.now());
+    if (!resp.ok) throw new Error("Falha ao carregar: " + caminho);
     return resp.json();
 }
 
 async function sortear() {
-    const config = JSON.parse(localStorage.getItem("config")) ||
-                   await carregarJSON("config.json");
-    const selecoes = JSON.parse(localStorage.getItem("selecoes")) || {
-        verde: ["padrao"],
-        vermelho: ["padrao"],
-        amarelo: ["padrao"]
-    };
+    try {
+        // 1. Carrega o config MESTRE
+        const config = await carregarJSON("config.json");
+        const probabilidades = config.probabilidades;
+        const selecoes = config.listas_ativas;
 
-    // Carrega eventos de cada cor
-    const [verde, vermelho, amarelo] = await Promise.all([
-        carregarJSON("eventos/verde.json"),
-        carregarJSON("eventos/vermelho.json"),
-        carregarJSON("eventos/amarelo.json")
-    ]);
+        // 2. Carrega todos os eventos
+        const [verde, vermelho, amarelo] = await Promise.all([
+            carregarJSON("eventos/verde.json"),
+            carregarJSON("eventos/vermelho.json"),
+            carregarJSON("eventos/amarelo.json")
+        ]);
 
-    const cores = { verde, vermelho, amarelo };
-    const total = config.verde + config.vermelho + config.amarelo;
-    const rand = Math.random() * total;
-    let corEscolhida;
+        const cores = { verde, vermelho, amarelo };
+        
+        // 3. Sorteia a cor
+        const total = probabilidades.verde + probabilidades.vermelho + probabilidades.amarelo;
+        const rand = Math.random() * total;
+        let corEscolhida;
 
-    if (rand < config.verde) corEscolhida = "verde";
-    else if (rand < config.verde + config.vermelho) corEscolhida = "vermelho";
-    else corEscolhida = "amarelo";
+        if (rand < probabilidades.verde) corEscolhida = "verde";
+        else if (rand < probabilidades.verde + probabilidades.vermelho) corEscolhida = "vermelho";
+        else corEscolhida = "amarelo";
 
-    // Une todas as listas selecionadas
-    let eventos = [];
-    selecoes[corEscolhida].forEach(lista => {
-        eventos = eventos.concat(cores[corEscolhida][lista]);
-    });
+        // 4. Une todas as listas ATIVAS para a cor sorteada
+        let eventos = [];
+        if (selecoes[corEscolhida]) {
+            selecoes[corEscolhida].forEach(lista => {
+                if (cores[corEscolhida][lista]) {
+                    eventos = eventos.concat(cores[corEscolhida][lista]);
+                }
+            });
+        }
+        
+        // Se nenhuma lista estiver ativa, informa o usuário
+        if (eventos.length === 0) {
+            document.getElementById('resultado').innerText = "Nenhuma lista de eventos ativa para a cor " + corEscolhida;
+            return;
+        }
 
-    const evento = eventos[Math.floor(Math.random() * eventos.length)];
-    const resultadoEl = document.getElementById('resultado');
-    const botao = document.getElementById('btn');
+        // 5. Sorteia o evento e mostra
+        const evento = eventos[Math.floor(Math.random() * eventos.length)];
+        const resultadoEl = document.getElementById('resultado');
+        const botao = document.getElementById('btn');
 
-    if (corEscolhida === 'verde') {
-        document.body.style.backgroundColor = "#16a34a";
-        botao.style.backgroundColor = "#15803d";
-    } else if (corEscolhida === 'vermelho') {
-        document.body.style.backgroundColor = "#dc2626";
-        botao.style.backgroundColor = "#b91c1c";
-    } else {
-        document.body.style.backgroundColor = "#facc15";
-        botao.style.backgroundColor = "#ca8a04";
+        if (corEscolhida === 'verde') {
+            document.body.style.backgroundColor = "#16a34a";
+            botao.style.backgroundColor = "#15803d";
+        } else if (corEscolhida === 'vermelho') {
+            document.body.style.backgroundColor = "#dc2626";
+            botao.style.backgroundColor = "#b91c1c";
+        } else {
+            document.body.style.backgroundColor = "#facc15";
+            botao.style.backgroundColor = "#ca8a04";
+        }
+
+        resultadoEl.innerText = evento;
+
+    } catch (error) {
+        console.error(error);
+        document.getElementById('resultado').innerText = "Erro ao carregar arquivos. Verifique o console (F12).";
     }
-
-    resultadoEl.innerText = evento;
 }
 </script>
 </body>

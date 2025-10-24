@@ -1,114 +1,86 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel de Controle</title>
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f1f5f9;
-    margin: 0;
-    padding: 20px;
-}
-h2 { margin-top: 40px; }
-.container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 600px;
-    margin: auto;
-}
-input[type="number"] {
-    width: 60px;
-}
-.color-section {
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding: 15px;
-    background: #fff;
-}
-button {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 20px;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Controle</title>
+  <style>
+    body { background:#111; color:white; font-family:Arial; padding:20px; }
+    input, select { padding:5px; margin:5px; }
+    .cor { margin-bottom:20px; }
+    button { padding:10px 20px; font-size:16px; cursor:pointer; }
+    h2 { color:#0f0; }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h1>Controle de Sorteio</h1>
+  <h1>Controle de Probabilidades e Listas</h1>
 
-    <div class="color-section">
-        <h2>Probabilidades</h2>
-        <label>Verde: <input id="verdeProb" type="number" min="0" value="2"></label><br>
-        <label>Vermelho: <input id="vermelhoProb" type="number" min="0" value="1"></label><br>
-        <label>Amarelo: <input id="amareloProb" type="number" min="0" value="1"></label>
-    </div>
+  <div class="probabilidades">
+    <h2>Probabilidades</h2>
+    <div>Verde: <input type="number" id="probVerde" min="0" value="2"></div>
+    <div>Vermelho: <input type="number" id="probVermelho" min="0" value="1"></div>
+    <div>Amarelo: <input type="number" id="probAmarelo" min="0" value="1"></div>
+  </div>
 
-    <div id="listas"></div>
+  <hr>
+  <h2>Seleção de Listas</h2>
 
-    <button onclick="salvarConfig()">Salvar Configurações</button>
-</div>
+  <div id="listas"></div>
 
-<script>
-const cores = ["verde", "vermelho", "amarelo"];
+  <button onclick="salvar()">Salvar Configurações</button>
 
-async function carregarListas() {
-    const listasDiv = document.getElementById("listas");
-    listasDiv.innerHTML = "";
+  <script>
+    async function carregar() {
+      const cfg = await (await fetch("config.json?v=" + Date.now())).json();
+      document.getElementById("probVerde").value = cfg.verde;
+      document.getElementById("probVermelho").value = cfg.vermelho;
+      document.getElementById("probAmarelo").value = cfg.amarelo;
 
-    for (const cor of cores) {
-        const resp = await fetch(`eventos/${cor}/?v=${Date.now()}`);
-        const html = await resp.text();
+      const listas = await (await fetch("eventos/lista.json?v=" + Date.now())).json();
+      const selecoesSalvas = JSON.parse(localStorage.getItem("selecoes") || "{}");
+      const container = document.getElementById("listas");
 
-        // GitHub Pages não permite listar diretórios, então usamos nomes fixos
-        const arquivos = ["padrao.txt"]; // pode adicionar manualmente novos arquivos
-
-        const section = document.createElement("div");
-        section.className = "color-section";
-        section.innerHTML = `<h2>${cor.charAt(0).toUpperCase() + cor.slice(1)}</h2>`;
-        arquivos.forEach(a => {
-            const id = `${cor}-${a}`;
-            section.innerHTML += `<label><input type="checkbox" id="${id}" checked> ${a}</label><br>`;
+      for (const cor in listas) {
+        const div = document.createElement("div");
+        div.classList.add("cor");
+        div.innerHTML = `<strong>${cor.toUpperCase()}:</strong><br>`;
+        listas[cor].forEach(arq => {
+          const id = `${cor}-${arq}`;
+          const chk = document.createElement("input");
+          chk.type = "checkbox";
+          chk.id = id;
+          chk.value = arq;
+          if (selecoesSalvas[cor]?.includes(arq)) chk.checked = true;
+          const lbl = document.createElement("label");
+          lbl.setAttribute("for", id);
+          lbl.innerText = arq;
+          div.appendChild(chk);
+          div.appendChild(lbl);
+          div.appendChild(document.createElement("br"));
         });
-        listasDiv.appendChild(section);
-    }
-}
-
-function salvarConfig() {
-    const config = {
-        probabilidades: {
-            verde: parseInt(document.getElementById("verdeProb").value),
-            vermelho: parseInt(document.getElementById("vermelhoProb").value),
-            amarelo: parseInt(document.getElementById("amareloProb").value)
-        },
-        listas: {}
-    };
-
-    for (const cor of cores) {
-        const marcados = [];
-        document.querySelectorAll(`[id^=${cor}-]`).forEach(chk => {
-            if (chk.checked) marcados.push(chk.id.split("-")[1]);
-        });
-        config.listas[cor] = marcados;
+        container.appendChild(div);
+      }
     }
 
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "config.json";
-    a.click();
-    URL.revokeObjectURL(url);
-}
+    function salvar() {
+      const cfg = {
+        verde: parseInt(document.getElementById("probVerde").value),
+        vermelho: parseInt(document.getElementById("probVermelho").value),
+        amarelo: parseInt(document.getElementById("probAmarelo").value)
+      };
+      localStorage.setItem("config", JSON.stringify(cfg));
 
-carregarListas();
-</script>
+      const selecoes = {};
+      document.querySelectorAll(".cor").forEach(div => {
+        const cor = div.querySelector("strong").innerText.toLowerCase().replace(":", "");
+        selecoes[cor] = Array.from(div.querySelectorAll("input:checked")).map(c => c.value);
+      });
+      localStorage.setItem("selecoes", JSON.stringify(selecoes));
+
+      alert("Configurações atualizadas com sucesso!");
+    }
+
+    carregar();
+  </script>
 </body>
 </html>

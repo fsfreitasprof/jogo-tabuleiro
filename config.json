@@ -1,5 +1,12 @@
 {
-  "verde": 2,
-  "vermelho": 1,
-  "amarelo": 1
+  "probabilidades": {
+    "verde": 2,
+    "vermelho": 1,
+    "amarelo": 1
+  },
+  "listas_ativas": {
+    "verde": ["padrao"],
+    "vermelho": ["padrao"],
+    "amarelo": ["padrao"]
+  }
 }

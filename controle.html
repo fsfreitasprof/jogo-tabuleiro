@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Controle</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    padding: 20px;
+    color: #111;
+}
+h1 {
+    text-align: center;
+}
+section {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+label {
+    display: inline-block;
+    width: 100px;
+}
+input[type="number"] {
+    width: 60px;
+}
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+button:hover {
+    opacity: 0.9;
+}
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.color-title {
+    font-weight: bold;
+    margin-top: 15px;
+}
+</style>
+</head>
+<body>
+
+<h1>Controle de Sorteio</h1>
+
+<section>
+    <h2>Probabilidades</h2>
+    <label>Verde:</label> <input id="verdeProb" type="number" min="0" value="2"><br><br>
+    <label>Vermelho:</label> <input id="vermelhoProb" type="number" min="0" value="1"><br><br>
+    <label>Amarelo:</label> <input id="amareloProb" type="number" min="0" value="1"><br><br>
+</section>
+
+<section>
+    <h2>Seleção de Listas</h2>
+    <div id="listas"></div>
+</section>
+
+<div style="text-align:center;">
+    <button onclick="salvarConfig()">Salvar Configurações</button>
+</div>
+
+<script>
+const cores = ["verde","vermelho","amarelo"];
+let selecaoArquivos = { verde: [], vermelho: [], amarelo: [] };
+
+async function carregarArquivos() {
+    const container = document.getElementById("listas");
+    for (const cor of cores) {
+        const div = document.createElement("div");
+        div.innerHTML = `<div class='color-title' style='color:${cor}'>${cor.toUpperCase()}</div>`;
+        const group = document.createElement("div");
+        group.className = "checkbox-group";
+
+        try {
+            const resp = await fetch(`eventos/${cor}/`);
+            if (!resp.ok) throw new Error();
+        } catch {
+            group.innerHTML = "<i>Pasta não acessível no GitHub Pages.</i>";
+            div.appendChild(group);
+            container.appendChild(div);
+            continue;
+        }
+
+        // GitHub Pages não lista diretórios automaticamente, então listamos manualmente:
+        const arquivosPadrao = ["padrao.txt", "3A.txt", "extra.txt"];
+        for (const nome of arquivosPadrao) {
+            const lbl = document.createElement("label");
+            lbl.style.display = "inline-flex";
+            lbl.style.alignItems = "center";
+            lbl.style.gap = "5px";
+            lbl.innerHTML = `<input type='checkbox' value='${nome}' data-cor='${cor}'> ${nome}`;
+            group.appendChild(lbl);
+        }
+
+        div.appendChild(group);
+        container.appendChild(div);
+    }
+}
+
+function salvarConfig() {
+    const verde = parseInt(document.getElementById("verdeProb").value) || 0;
+    const vermelho = parseInt(document.getElementById("vermelhoProb").value) || 0;
+    const amarelo = parseInt(document.getElementById("amareloProb").value) || 0;
+
+    const checkboxes = document.querySelectorAll("input[type=checkbox]");
+    const listas = { verde: [], vermelho: [], amarelo: [] };
+    checkboxes.forEach(ch => {
+        if (ch.checked) listas[ch.dataset.cor].push(ch.value);
+    });
+
+    const config = {
+        probabilidades: { verde, vermelho, amarelo },
+        listas
+    };
+
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "config.json";
+    link.click();
+}
+
+carregarArquivos();
+</script>
+</body>
+</html>

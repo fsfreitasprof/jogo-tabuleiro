@@ -1,14 +1,16 @@
 {
   "probabilidades": {
-    "verde": 2,
+    "verde": 10,
     "vermelho": 1,
     "amarelo": 1
   },
   "listas_ativas": {
     "verde": [
-      "Texte 1"
+      "padrao"
     ],
-    "vermelho": [],
+    "vermelho": [
+      "padrao"
+    ],
     "amarelo": []
   }
 }

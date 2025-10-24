@@ -1,0 +1,12 @@
+{
+  "probabilidades": {
+    "verde": 2,
+    "vermelho": 1,
+    "amarelo": 1
+  },
+  "listas": {
+    "verde": ["padrao.txt"],
+    "vermelho": ["padrao.txt"],
+    "amarelo": ["padrao.txt"]
+  }
+}

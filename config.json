@@ -6,21 +6,13 @@
   },
   "listas_ativas": {
     "verde": [
-      "padrao",
-      "extra",
-      "extra 2"
+      "padrao"
     ],
     "vermelho": [
-      "padrao",
-      "extra",
-      "extra 2"
+      "padrao"
     ],
     "amarelo": [
-      "padrao",
-      "3A",
-      "3C",
-      "3 Geral",
-      "Desafios"
+      "padrao"
     ]
   }
 }

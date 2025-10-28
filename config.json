@@ -1,22 +1,18 @@
 {
   "probabilidades": {
-    "verde": 2,
-    "vermelho": 2,
-    "amarelo": 2
+    "verde": 1,
+    "vermelho": 1,
+    "amarelo": 1
   },
   "listas_ativas": {
     "verde": [
-      "extra 2"
+      "padrao"
     ],
     "vermelho": [
-      "extra 2"
+      "padrao"
     ],
     "amarelo": [
-      "padrao",
-      "3B",
-      "3D",
-      "3 Geral",
-      "Desafios"
+      "padrao"
     ]
   }
 }

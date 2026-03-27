@@ -6,10 +6,14 @@
   },
   "listas_ativas": {
     "verde": [
-      "padrao"
+      "padrao",
+      "extra",
+      "extra 2"
     ],
     "vermelho": [
-      "padrao"
+      "padrao",
+      "extra",
+      "extra 2"
     ],
     "amarelo": [
       "padrao",

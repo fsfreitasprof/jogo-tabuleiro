@@ -6,7 +6,10 @@
     "Todos os jogadores voltam uma casa, exceto você.",
     "Todos os jogadores, inclusive você, perdem 5 pontos.",
     "Todos os jogadores, inclusive você, ganham 5 pontos.",
-    "Tem alguma Ana ou Maria no grupo? Se for Maria, todos perdem 3 pontos. Se for Ana, todos ganham 3 pontos."
+    "Tem alguma Ana ou Maria no grupo? Se for Maria, todos perdem 3 pontos. Se for Ana, todos ganham 3 pontos.",
+    "Se a sua idade for um número par, ganhe 4 pontos. se for um número ímpar, perca 4 pontos.",
+    "Escolha alguém para fazer a tabuada do 3 em até 30 segundos. Se a pessoa conseguir, ela ganha 10 pontos."
+    
   ],
   "3A": [
     "O Leonardo (3ºA) está dormindo? Se sim, todos voltam 2 casas. Se ele não estiver presente, todos perdem 5 pontos."

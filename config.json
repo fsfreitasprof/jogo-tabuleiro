@@ -1,14 +1,45 @@
+Painel de Controle
+Probabilidades
+Verde: 
+1
+Vermelho: 
+1
+Amarelo: 
+2
+Listas disponíveis
+verde:
+
+
+
+vermelho:
+
+
+
+amarelo:
+
+
+
+
+
+
+
+GERAR CÓDIGO
+Copie e cole este código no arquivo config.json
 {
   "probabilidades": {
     "verde": 1,
     "vermelho": 1,
-    "amarelo": 1
+    "amarelo": 2
   },
   "listas_ativas": {
     "verde": [
+      "padrao",
+      "extra",
       "extra 2"
     ],
     "vermelho": [
+      "padrao",
+      "extra",
       "extra 2"
     ],
     "amarelo": [
